@@ -119,30 +119,29 @@ import { useSelector } from "react-redux";
 
 const BookList = () => {
   const books = useSelector((state) => state.bookR.books);
+
   return (
     <div>
       <div className="row">
         <h2 className="text-center">List of Books</h2>
         <hr />
         {books && books.length > 0 ? (
-          books.map((book) => {
-            return (
-              <div className="row text-center">
-                <ul>
-                  <li>
-                    <h3>
-                      {book.title} <span>{book.author}</span>
-                    </h3>
-                    <p>
-                      Price : {book.price} Tk - Quantity : {book.quantity} {""}
-                    </p>
-                  </li>
-                </ul>
-              </div>
-            );
-          })
+          <ul>
+            {books.map((book) => {
+              return (
+                <li key={book.id} className="row text-center">
+                  <h3>
+                    {book.title} - <span>{book.author}</span>
+                  </h3>
+                  <p>
+                    Price: {book.price} Tk - Quantity: {book.quantity}
+                  </p>
+                </li>
+              );
+            })}
+          </ul>
         ) : (
-          <h3 className="text-center">NO Books Found</h3>
+          <h3 className="text-center">No Books Found</h3>
         )}
       </div>
     </div>
