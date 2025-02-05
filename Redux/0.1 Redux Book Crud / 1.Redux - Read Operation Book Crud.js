@@ -37,7 +37,7 @@ const initialState = {
             quantity: 1
         },
         {
-            id: 2, 
+            id: 3, 
             title: 'Life of Pi',
             author: 'Yann Martel',
             price: 30,
