@@ -1,6 +1,15 @@
 #Redux Book Crud - Create Operation: 
 -------------------------------
+1 => from App.jsx => Receive 'book' params from BookList by handle Edit Function 
 
+2 => Set the State to pass value to Book Form 
+
+3. BookForm => useEffect if {bookToEdit value change }
+
+----------------------------------------------------------
+for the change button : 
+
+4. App.jsx => handleCancelEdit pass to BookForm Component. 
 
 
 ============================================================ BookSlice ================================================
