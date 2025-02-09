@@ -12,6 +12,59 @@ for the change button :
 
 4. App.jsx => handleCancelEdit pass to BookForm Component. 
 
+=================================================== Details Explation of the Update Process ==========================
+    **** parent to child component if pass any function then directly pass valo from child to Parent function. 
+
+    #App.js => 
+    ------------
+    
+    const handleEdit = (book) => {console.log(book)}; 
+    
+    <BookList onHandleEdit={handleEdit}>
+    
+    #BookList =>  **** Directly pass the 'book' to the App.js function
+    ---------------
+  
+    
+    const BookList = ({onHandleEdit}) => {
+    
+      //edit method : 
+      const handleEdit = (book) => {
+        // console.log(book); 
+        onHandleEdit(book); //send value to the App.js function directly
+      }
+      
+     #App.js => update the state setBookEdit by useState() and send the 'book' to <BookForm >
+     ----------
+        //pass value to the BookForm Component :
+        const [bookToEdit, setBookToEdit] = useState(null);
+        
+         const handleEdit = (book) => {
+                    // console.log("app edit",book);
+                    setBookToEdit(book);
+                  };
+     
+        <BookForm bookToEdit={bookToEdit} />
+    
+     #<BookForm> : After Receiving the book then use useEffect hook , 
+     
+         //***For edit part use this function => if bookToEdit is not null useEffect=> 
+         useEffect(() => {
+                          if(bookToEdit){
+                            setBook(bookToEdit);
+                          }
+                          
+                        },[bookToEdit]);
+                        
+        //initialazed the state of book state:
+                  const [book, setBook] = useState({
+                    title: "",
+                    author: "",
+                    price: "",
+                    quantity: "",
+                  });
+
+
 
 ============================================================ BookSlice ================================================
 import {createSlice} from '@reduxjs/toolkit';
