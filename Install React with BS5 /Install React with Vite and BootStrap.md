@@ -11,3 +11,7 @@
 ================================= install react-redux and bootstap ==================================================
 >>> npm install @reduxjs/toolkit react-redux
 >>> npm install bootstrap
+
+================================== Imort Bootstrap 5 in Jsx==============================
+// Import Bootstrap CSS
+import 'bootstrap/dist/css/bootstrap.min.css'
