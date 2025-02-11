@@ -13,5 +13,6 @@
 >>> npm install bootstrap
 
 ================================== Imort Bootstrap 5 in Jsx==============================
-// Import Bootstrap CSS
-import 'bootstrap/dist/css/bootstrap.min.css'
+//in the file import => 
+import 'bootstrap/dist/css/bootstrap.min.css'; // Bootstrap CSS
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // Bootstrap JS
