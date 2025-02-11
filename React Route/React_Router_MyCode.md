@@ -174,11 +174,18 @@ const router = createBrowserRouter([
 ---------------
 import {Link} from 'react-router-dom'
 
- <nav>
-      <ul>
-        <li>
-          <Link to="/">Home</Link>
-        </li>
-      </ul>
-      <Outlet/>
-</nav>
+return (
+    <>
+        <nav>
+            <ul>
+                <li>
+                <Link to="/">Home</Link>
+                </li>
+            </ul>
+        </nav>
+        <div>
+            <Outlet/> {* Basically the children component from the main.jsx*}
+        </div>
+    </div>
+)
+ 
