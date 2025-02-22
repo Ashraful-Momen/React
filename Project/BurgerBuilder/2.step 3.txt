@@ -1,0 +1,125 @@
+======================================================================================= setp : 3 ===========================================================
+#create the calculation with the ingredient . Declare a state in BurgerBuilder Class componnent . then pass the state from <BurgerBuilder> to <Burger>. 
+
+#<BurgerBuilder>: 
+-----------------
+import React from 'react'
+import Burger from './Burger/Burger'
+
+class BurgerBuilder extends React.Component {
+  
+    state  = {
+        ingredients :
+            [
+                {type : 'bread-bottom',amount:1},
+                {type : 'meat',amount:2},
+                {type : 'cheese',amount:3},
+                {type : 'bread-top',amount:1}
+            ]
+    }
+  render() {
+
+    return (
+      <div>
+        <Burger ingredients={this.state.ingredients}/>
+      </div>
+    )
+  }
+}
+
+export default BurgerBuilder
+
+
+#Burger: 
+-----------
+import React from "react";
+import Ingredient from "../Ingredient/Ingredient";
+
+const Burger = (props) => {
+  console.log(props);
+
+  let ingredinetArr = props.ingredients.map((item) => {
+
+    // create the ingreate according to the item.amount , this amount get from BurgerBuilder state.
+
+    //explain Array()  => ...Array(5).keys() => [0,1,2,3,4] //Array(create a array of length 5).keys() => [0,1,2,3,4]
+
+    //if item= 1 ; then amountArr = [0] , if item = 2 ; then amountArr = [0,1] ...
+
+    let amountArr = [...Array(item.amount).keys()];
+
+    //check in the console ;
+    console.log(amountArr); 
+  });
+
+  return (
+    <div>
+      <Ingredient type="bread-top" />
+      <Ingredient type="bread-bottom" />
+    </div>
+  );
+};
+
+export default Burger;
+
+#Ingredient : (previous step code ) 
+------------------------------------
+
+
+import React from "react";
+
+import BreadTop from "/home/ashraful/React/Practise/Builder/Bbuilder-full/src/assets/images/ingreditents/bread_top.png";
+import BreadBottom from "/home/ashraful/React/Practise/Builder/Bbuilder-full/src/assets/images/ingreditents/bread_bottom.png";
+import Cheese from "/home/ashraful/React/Practise/Builder/Bbuilder-full/src/assets/images/ingreditents/cheese.png";
+import Meat from "/home/ashraful/React/Practise/Builder/Bbuilder-full/src/assets/images/ingreditents/meat.png";
+import Salad from "/home/ashraful/React/Practise/Builder/Bbuilder-full/src/assets/images/ingreditents/salad.png";
+
+const Ingredient = (props) => {
+
+    console.log(props.type); 
+  let ingredient = null;
+
+  switch (props.type) {
+    //import the images with the props.types , according to the case add the img :
+    case "bread-top":
+      ingredient = (
+        <div>
+          <img src={BreadTop} alt="Bread" />
+        </div>
+      );
+      break;
+    case "bread-bottom":
+      ingredient = (
+        <div>
+          <img src={BreadBottom} alt="Bread" />
+        </div>
+      );
+      break;
+    case "cheese":
+      ingredient = (
+        <div>
+          <img src={Cheese} alt="Cheese" />
+        </div>
+      );
+      break;
+    case "meat":
+      ingredient = (
+        <div>
+          <img src={Meat} alt="Meat" />
+        </div>
+      );
+      break;
+    case "salad":
+      ingredient = (
+        <div>
+          <img src={Salad} alt="Salad" />
+        </div>
+      );
+    default:
+      ingredient = null;
+  }
+
+  return (<div>{ingredient}</div>);
+};
+
+export default Ingredient;
