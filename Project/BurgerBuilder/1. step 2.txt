@@ -1,0 +1,109 @@
+======================================================================================= setp : 2 (showing the ingredient image)===========================================================
+#folder : 
+----------
+/src
+    /BurgerBuilder
+                    /Burger/Burger.jsx  
+                    /Ingredient/Ingredient.jsx 
+---------------------------------------
+
+
+#add a <Burger/> component inside the <BurgerBuilder/> 
+#add a <Ingregident/> component inside the <Ingregident/>
+
+#call <Burger> inside the <BurgerBuilder>
+#call <Ingredient> inside <Burger/> Componsnet . 
+
+
+#BurgerBulder.jsx: 
+--------------
+import React from 'react'
+import Burger from './Burger/Burger'
+
+const BurgerBuilder = () => {
+  return (
+    <div>
+      <Burger />
+    </div>
+  )
+}
+
+export default BurgerBuilder
+
+#Burger.jsx: 
+------------
+import React from "react";
+import Ingredient from "../Ingredient/Ingredient";
+
+const Burger = (props) => {
+  return (
+  <div>
+    <Ingredient type="bread-top" />
+    <Ingredient type="bread-bottom" />
+  </div>
+  );
+};
+
+export default Burger;
+
+
+#Ingredient.jsx: 
+-----------------
+
+import React from "react";
+
+import BreadTop from "/home/ashraful/React/Practise/Builder/Bbuilder-full/src/assets/images/ingreditents/bread_top.png";
+import BreadBottom from "/home/ashraful/React/Practise/Builder/Bbuilder-full/src/assets/images/ingreditents/bread_bottom.png";
+import Cheese from "/home/ashraful/React/Practise/Builder/Bbuilder-full/src/assets/images/ingreditents/cheese.png";
+import Meat from "/home/ashraful/React/Practise/Builder/Bbuilder-full/src/assets/images/ingreditents/meat.png";
+import Salad from "/home/ashraful/React/Practise/Builder/Bbuilder-full/src/assets/images/ingreditents/salad.png";
+
+const Ingredient = (props) => {
+
+    console.log(props.type); 
+  let ingredient = null;
+
+  switch (props.type) {
+    //import the images with the props.types , according to the case add the img :
+    case "bread-top":
+      ingredient = (
+        <div>
+          <img src={BreadTop} alt="Bread" />
+        </div>
+      );
+      break;
+    case "bread-bottom":
+      ingredient = (
+        <div>
+          <img src={BreadBottom} alt="Bread" />
+        </div>
+      );
+      break;
+    case "cheese":
+      ingredient = (
+        <div>
+          <img src={Cheese} alt="Cheese" />
+        </div>
+      );
+      break;
+    case "meat":
+      ingredient = (
+        <div>
+          <img src={Meat} alt="Meat" />
+        </div>
+      );
+      break;
+    case "salad":
+      ingredient = (
+        <div>
+          <img src={Salad} alt="Salad" />
+        </div>
+      );
+    default:
+      ingredient = null;
+  }
+
+  return (<div>{ingredient}</div>);
+};
+
+export default Ingredient;
