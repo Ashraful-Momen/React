@@ -1,0 +1,180 @@
+======================================== setp : 4 (showing the burger img according to ingredient amount)=======================================================
+
+
+# working flow => BurgerBuilder  > Burger > Ingredient .
+
+# BurgerBuilder component send the sate to the Burger component . then Burger pass those props to Ingredient component . then show the burger image . 
+
+# if ingredient is zero then , show the text in UI that => "please add some ingredient" ; 
+
+
+# BurgerBuilder.jsx: 
+------------------------
+import React from "react";
+import Ingredient from "../Ingredient/Ingredient";
+
+const Burger = (props) => {
+  console.log(props);
+
+  let ingredinetArr = props.ingredients.map((item) => {
+
+    // create the ingreate according to the item.amount , this amount get from BurgerBuilder state.
+
+    //explain Array()  => ...Array(5).keys() => [0,1,2,3,4] //Array(create a array of length 5).keys() => [0,1,2,3,4]
+
+    //if item= 1 ; then amountArr = [0] , if item = 2 ; then amountArr = [0,1] ...
+
+    let amountArr = [...Array(item.amount).keys()];
+
+    //check in the console ;
+    // console.log(amountArr); 
+
+    // return the item.type to the <Ingredient /> , from the BurgerBuilder state. 
+    return amountArr.map((_,) => {
+
+        return <Ingredient type={item.type} key={Math.random()} />
+        
+    })
+  })
+    //why use reducer here : if ingredientArr lenth is 0 , then show "please add some ingredients" in the UI.
+    //find out the array lenth that why use this reducer. 
+
+    .reducer((array, element) => {return acc.concat(element)}, []);
+
+    if(ingredinetArr.length === 0){
+        ingredinetArr = <p>please add some ingredients</p>
+    }
+
+  return (
+    <div>
+      <Ingredient type="bread-top" />
+      {ingredinetArr}
+      <Ingredient type="bread-bottom" />
+    </div>
+  );
+};
+
+export default Burger;
+
+
+
+#Burger.jsx => 
+--------------
+import React from "react";
+import Ingredient from "../Ingredient/Ingredient";
+
+const Burger = (props) => {
+  console.log(props);
+
+  let ingredinetArr = props.ingredients.map((item) => {
+
+    // create the ingreate according to the item.amount , this amount get from BurgerBuilder state.
+
+    //explain Array()  => ...Array(5).keys() => [0,1,2,3,4] //Array(create a array of length 5).keys() => [0,1,2,3,4]
+
+    //if item= 1 ; then amountArr = [0] , if item = 2 ; then amountArr = [0,1] ...
+
+    let amountArr = [...Array(item.amount).keys()];
+
+    //check in the console ;
+    // console.log(amountArr); 
+
+    // return the item.type to the <Ingredient /> , from the BurgerBuilder state. 
+    return amountArr.map((_,) => {
+
+        return <Ingredient type={item.type} key={Math.random()} />
+        
+    })
+  });
+
+  return (
+    <div>
+      <Ingredient type="bread-top" />
+      {ingredinetArr}
+      <Ingredient type="bread-bottom" />
+    </div>
+  );
+};
+
+export default Burger;
+
+
+#Ingredient.jsx => 
+------------------
+import React from "react";
+
+import BreadTop from "/home/ashraful/React/Practise/Builder/Bbuilder-full/src/assets/images/ingreditents/bread_top.png";
+import BreadBottom from "/home/ashraful/React/Practise/Builder/Bbuilder-full/src/assets/images/ingreditents/bread_bottom.png";
+import Cheese from "/home/ashraful/React/Practise/Builder/Bbuilder-full/src/assets/images/ingreditents/cheese.png";
+import Meat from "/home/ashraful/React/Practise/Builder/Bbuilder-full/src/assets/images/ingreditents/meat.png";
+import Salad from "/home/ashraful/React/Practise/Builder/Bbuilder-full/src/assets/images/ingreditents/salad.png";
+
+const Ingredient = (props) => {
+  console.log(props.type);
+  let ingredient = null;
+
+  switch (props.type) {
+    //import the images with the props.types , according to the case add the img :
+    case "bread-top":
+      ingredient = (
+        <div>
+          <img
+            src={BreadTop}
+            alt="Bread"
+            style={{ height: "50px", width: "30%" }}
+          />
+        </div>
+      );
+      break;
+    case "bread-bottom":
+      ingredient = (
+        <div>
+          <img
+            src={BreadBottom}
+            alt="Bread"
+            style={{ height: "50px", width: "30%" }}
+          />
+        </div>
+      );
+      break;
+    case "cheese":
+      ingredient = (
+        <div>
+          <img
+            src={Cheese}
+            alt="Cheese"
+            style={{ height: "50px", width: "30%" }}
+          />
+        </div>
+      );
+      break;
+    case "meat":
+      ingredient = (
+        <div>
+          <img
+            src={Meat}
+            alt="Meat"
+            style={{ height: "50px", width: "30%" }}
+          />
+        </div>
+      );
+      break;
+    case "salad":
+      ingredient = (
+        <div>
+          <img
+            src={Salad}
+            alt="Salad"
+            style={{ height: "50px", width: "30%" }}
+          />
+        </div>
+      );
+      break;
+    default:
+      ingredient = null;
+  }
+
+  return <div>{ingredient}</div>;
+};
+
+export default Ingredient;
