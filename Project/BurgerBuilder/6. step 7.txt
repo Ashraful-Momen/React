@@ -1,0 +1,144 @@
+======================================== step : 7 (Pass function BurgerBuilder to Controller component:update the price ) =======================================================
+
+#when click add/less btn from the 'Control.jsx' then those function run from BurgerBuilder component . update the price then send to the Control component. 
+
+
+#BurgerBuilder.jsx: 
+-------------------
+import React from "react";
+import Burger from "./Burger/Burger";
+import Controls from "./Controls/Controls";
+
+const INGREDIENT_PRICES = {
+  salad: 10,
+  cheese: 20,
+  meat: 30,
+};
+
+class BurgerBuilder extends React.Component {
+  state = {
+    ingredients: [
+      { type: "salad", amount: 0 },
+      { type: "cheese", amount: 0 },
+      { type: "meat", amount: 0 },
+    ],
+    totalPrice:80,
+  };
+
+  addIngredientHandler = (type) => {
+
+
+    // Create a new array to maintain immutability
+    const updatedIngredients = this.state.ingredients.map((item) => {
+      if (item.type === type) {
+        return { ...item, amount: item.amount + 1 };
+      }
+      return item;
+    });
+
+    this.setState({ ingredients: updatedIngredients });
+
+    //Update the price : 
+    const newPrice = this.state.totalPrice + INGREDIENT_PRICES[type];
+    this.setState({totalPrice: newPrice});
+
+  };
+
+  removeIngredientHandler = (type) => {
+    const updatedIngredients = this.state.ingredients.map((item) => {
+      if (item.type === type && item.amount > 0) {
+        return { ...item, amount: item.amount - 1 };
+      }
+      return item;
+    });
+
+    this.setState({ ingredients: updatedIngredients });
+
+    //Update the price : 
+    if(this.state.totalPrice > 80){
+
+      const newPrice = this.state.totalPrice - INGREDIENT_PRICES[type];
+      this.setState({totalPrice: newPrice});
+    }
+  };
+  render() {
+    return (
+      <div className="d-flex flex-md-row flex-column">
+        <Burger ingredients={this.state.ingredients} />
+        <Controls
+          ingredientsAdded={this.addIngredientHandler}
+          ingredientsRemoved={this.removeIngredientHandler}
+          price = {this.state.totalPrice}
+        />
+      </div>
+    );
+  }
+}
+
+export default BurgerBuilder;
+
+
+#Controls.jsx=> 
+----------------
+import React from "react";
+
+
+const controls = [
+    {label: "Meat", type: "meat"},
+    {label: "Cheese", type: "cheese"},
+    {label: "Salad", type: "salad"},
+]
+
+const BuildControl = (props) => {
+
+    return (
+        <div className="d-flex justify-content-between">
+            <div className="font-weight-bold fs-5">{props.label}</div>
+            <div>
+            <button className="btn btn-danger m-2 btn-sm" onClick={props.removed}>Less</button>
+            <button className="btn btn-success m-2 btn-sm" onClick={props.added}>More</button>
+            </div>
+        </div>
+    )
+    
+}
+
+const Controls = (props) => {
+
+    // console.log(props);
+
+  return (
+    <div className="container ms-md-5"
+        style={{
+            marginTop: "20px",
+            marginBottom: "20px",
+            textAlign: "center"
+        }}
+    >
+      <div class="card shadow">
+        <div class="card-header">Add Ingredients</div>
+        <div class="card-body">
+
+            {
+                controls.map((item) => {
+
+                    return (<BuildControl 
+                        
+                        key={item.label}
+                        label={item.label}
+                        type={item.type} 
+                        added = {() => props.ingredientsAdded(item.type)}
+                        removed = {() => props.ingredientsRemoved(item.type)}
+
+                        />)
+                })
+            }
+          
+        </div>
+        <div class="card-footer">Price:{props.price} BDT</div>
+      </div>
+    </div>
+  );
+};
+
+export default Controls;
