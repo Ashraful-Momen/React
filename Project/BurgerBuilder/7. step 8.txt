@@ -1,10 +1,34 @@
 ======================================== step : 8 (Modal for showing the order summary) =======================================================
+# create a modal inside <BurgerBuilder> : for showing the order summary . and a toggleFunction pass to  <Controls> component . Ex : 
+<Controls
+          ingredientsAdded={this.addIngredientHandler}
+          ingredientsRemoved={this.removeIngredientHandler}
+          price={this.state.totalPrice}
+          toggleModal={this.toggleModal}
+        />
+        
+#<Controls>: when click the 'order now ' button then open the modal . 
+------------
+<div class="card-footer" onClick={props.toggleModal}>Order Now</div>
+
+
+#create a component inside BurgerBuilder folder : > Summary > Summary.jsx => (Show the total ingredient with the price )
+
+#after creating the <Summary> pass inside the Modal which is in <BurgerBuilder>
+
+# Disable the order now button when <BurgerBuilder> state: ingredient.amount is zero . that's use updatePurchaseable function . 
+
+# updatePurchaseable also call inside of add/removeIngredientHandler function. for get the updateIngredient amount
+
+
 
 #BurgerBuilder.jsx=> 
 ---------------------
 import React from "react";
+import { Modal, ModalBody, ModalHeader, ModalFooter, Button } from "reactstrap";
 import Burger from "./Burger/Burger";
 import Controls from "./Controls/Controls";
+import Summary from "./Summary/Summary";
 
 const INGREDIENT_PRICES = {
   salad: 10,
@@ -21,15 +45,11 @@ class BurgerBuilder extends React.Component {
     ],
     totalPrice: 80,
     isModalOpen: false,
+    purchaseable: false,
   };
 
-  componentDidMount() {
-    // Initialize modal
-    this.modalElement = document.getElementById('orderModal');
-    this.modal = new window.bootstrap.Modal(this.modalElement);
-  }
-
   addIngredientHandler = (type) => {
+    // Create a new array to maintain immutability
     const updatedIngredients = this.state.ingredients.map((item) => {
       if (item.type === type) {
         return { ...item, amount: item.amount + 1 };
@@ -37,8 +57,17 @@ class BurgerBuilder extends React.Component {
       return item;
     });
     this.setState({ ingredients: updatedIngredients });
+    //Update the price :
     const newPrice = this.state.totalPrice + INGREDIENT_PRICES[type];
-    this.setState({ totalPrice: newPrice });
+    this.setState({ totalPrice: newPrice },
+      () => {
+        //Update the purchaseable state :for disable or enable the order now button.
+        // Ensure the purchaseable state is updated after setting the new state
+        this.updatePurchaseable(updatedIngredients);
+      }
+    );
+
+  
   };
 
   removeIngredientHandler = (type) => {
@@ -49,80 +78,72 @@ class BurgerBuilder extends React.Component {
       return item;
     });
     this.setState({ ingredients: updatedIngredients });
+    //Update the price :
     if (this.state.totalPrice > 80) {
       const newPrice = this.state.totalPrice - INGREDIENT_PRICES[type];
-      this.setState({ totalPrice: newPrice });
+      this.setState({ totalPrice: newPrice },
+         () => {
+          //Update the purchaseable state :for disable or enable the order now button.
+          // Ensure the purchaseable state is updated after setting the new state
+          this.updatePurchaseable(updatedIngredients);
+        }
+      );
     }
+     
+     
   };
 
   toggleModal = () => {
-    if (this.state.isModalOpen) {
-      this.modal.hide();
-    } else {
-      this.modal.show();
-    }
-    this.setState(prevState => ({
-      isModalOpen: !prevState.isModalOpen
+    this.setState((prevState) => ({
+      isModalOpen: !prevState.isModalOpen,
     }));
+    console.log(this.state.isModalOpen);
+    console.log(this.state.isModalOpen);
+  };
+
+  updatePurchaseable = (ingredients) => {
+    const sum = ingredients.reduce((sum, item) => {
+      return sum + item.amount;
+    }, 0);
+
+    // if sum > 0 , then this.setState({ purchaseable: true });
+    this.setState({ purchaseable: sum > 0 });
   };
 
   render() {
     return (
-      <div className="d-flex flex-md-row flex-column">
+      <div >
+        <div className="d-flex flex-md-row flex-column">
+
         <Burger ingredients={this.state.ingredients} />
         <Controls
           ingredientsAdded={this.addIngredientHandler}
           ingredientsRemoved={this.removeIngredientHandler}
           price={this.state.totalPrice}
           toggleModal={this.toggleModal}
+          purchaseable={this.state.purchaseable}
         />
-
-        {/* Modal - Always present in DOM but hidden by default */}
-        <div
-          className="modal fade"
-          id="orderModal"
-          tabIndex="-1"
-          aria-labelledby="orderModalLabel"
-          aria-hidden="true"
-        >
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title" id="orderModalLabel">
-                  Your Order Summary
-                </h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={this.toggleModal}
-                  aria-label="Close"
-                ></button>
-              </div>
-              <div className="modal-body">
-                <p>Total Price: {this.state.totalPrice} BDT</p>
-                <ul>
-                  {this.state.ingredients.map(ing => (
-                    <li key={ing.type}>
-                      {ing.type}: {ing.amount}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={this.toggleModal}
-                >
-                  Close
-                </button>
-                <button type="button" className="btn btn-primary">
-                  Place Order
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
+
+        <Modal isOpen={this.state.isModalOpen}>
+          <ModalHeader>Order Summary</ModalHeader>
+          <ModalBody>
+            <h5>Total Price : {this.state.totalPrice.toFixed(0)} BDT</h5>
+            <Summary ingredients={this.state.ingredients}/>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="secondary" onClick={this.toggleModal}>
+              Cancel
+            </Button>
+            <Button color="primary" onClick={this.toggleModal}>
+              Confirm
+            </Button>
+          </ModalFooter>
+        </Modal>
+
+        
+
+     
       </div>
     );
   }
@@ -131,68 +152,147 @@ class BurgerBuilder extends React.Component {
 export default BurgerBuilder;
 
 
+
 #Controls.jsx=> 
 ---------------
 import React from "react";
 
-
 const controls = [
-    {label: "Meat", type: "meat"},
-    {label: "Cheese", type: "cheese"},
-    {label: "Salad", type: "salad"},
-]
+  { label: "Meat", type: "meat" },
+  { label: "Cheese", type: "cheese" },
+  { label: "Salad", type: "salad" },
+];
 
 const BuildControl = (props) => {
-
-    return (
-        <div className="d-flex justify-content-between">
-            <div className="font-weight-bold fs-5">{props.label}</div>
-            <div>
-            <button className="btn btn-danger m-2 btn-sm" onClick={props.removed}>Less</button>
-            <button className="btn btn-success m-2 btn-sm" onClick={props.added}>More</button>
-            </div>
-        </div>
-    )
-    
-}
+  return (
+    <div className="d-flex justify-content-between">
+      <div className="font-weight-bold fs-5">{props.label}</div>
+      <div>
+        <button className="btn btn-danger m-2 btn-sm" onClick={props.removed}>
+          Less
+        </button>
+        <button className="btn btn-success m-2 btn-sm" onClick={props.added}>
+          More
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const Controls = (props) => {
-
-    console.log(props);
+  console.log(props);
 
   return (
-    <div className="container ms-md-5"
-        style={{
-            marginTop: "20px",
-            marginBottom: "20px",
-            textAlign: "center"
-        }}
-    >
+    <div
+      className="container ms-md-5"
+      style={{
+        marginTop: "20px",
+        marginBottom: "20px",
+        textAlign: "center",
+      }}>
       <div class="card shadow">
         <div class="card-header">Add Ingredients</div>
         <div class="card-body">
-
-            {
-                controls.map((item) => {
-
-                    return (<BuildControl 
-                        
-                        key={item.label}
-                        label={item.label}
-                        type={item.type} 
-                        added = {() => props.ingredientsAdded(item.type)}
-                        removed = {() => props.ingredientsRemoved(item.type)}
-
-                        />)
-                })
-            }
-          
+          {controls.map((item) => {
+            return (
+              <BuildControl
+                key={item.label}
+                label={item.label}
+                type={item.type}
+                added={() => props.ingredientsAdded(item.type)}
+                removed={() => props.ingredientsRemoved(item.type)}
+              />
+            );
+          })}
         </div>
         <div class="card-footer">Price:{props.price} BDT</div>
-        <div class="card-footer" onClick={props.toggleModal}>Order Now</div>
+        <div class="card-footer">
+          <button
+            className="btn btn-primary w-100"
+            onClick={props.toggleModal}
+            disabled={!props.purchaseable}>
+            Order Now
+          </button>
+        </div>
+       
       </div>
     </div>
   );
 };
 
 export default Controls;
+
+
+
+#summary.jsx : 
+------------------
+import React from 'react'
+
+const Summary = (props) => {
+    const ingredientSummary = props.ingredients.map((item) => {
+        return(
+            <li key={item.type}>
+               <span style={{textTransform: "capitalize"}}> {item.type } </span> : {item.amount}
+            </li>
+        )
+    })
+
+  return (
+    <div>
+        <ul>
+            {ingredientSummary}
+        </ul>
+    </div>
+  )
+}
+
+export default Summary
+
+
+#Unchanged component : Burger.jsx => 
+------------------------------------
+import React from "react";
+import Ingredient from "../Ingredient/Ingredient";
+
+const Burger = (props) => {
+  // console.log(props);
+
+  let ingredinetArr = props.ingredients.map((item) => {
+
+    // create the ingredient according to the item.amount , this amount get from BurgerBuilder state.
+
+    //explain Array()  => ...Array(5).keys() => [0,1,2,3,4] //Array(create a array of length 5).keys() => [0,1,2,3,4]
+
+    //if item= 1 ; then amountArr = [0] , if item = 2 ; then amountArr = [0,1] ...
+
+    let amountArr = [...Array(item.amount).keys()];
+
+    //check in the console ;
+    // console.log(amountArr); 
+
+    // return the item.type to the <Ingredient /> , from the BurgerBuilder state. 
+    return amountArr.map((_,) => {
+
+        return <Ingredient type={item.type} key={Math.random()} />
+        
+    })
+  })
+    //why use reducer here : if ingredientArr lenth is 0 , then show "please add some ingredients" in the UI.
+    //find out the array lenth that why use this reducer. 
+
+    .reduce((value, increment) => {return value.concat(increment)}, []);
+
+    if(ingredinetArr.length === 0){
+        ingredinetArr = <p>please add some ingredients</p>
+    }
+
+  return (
+    <div className="container  text-center">
+      <Ingredient type="bread-top" />
+      {ingredinetArr}
+      <Ingredient type="bread-bottom" />
+    </div>
+  );
+};
+
+export default Burger;
