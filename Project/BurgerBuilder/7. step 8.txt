@@ -1,4 +1,6 @@
 ======================================== step : 8 (Modal for showing the order summary) =======================================================
+#install : >>> npm install reactstrap
+
 # create a modal inside <BurgerBuilder> : for showing the order summary . and a toggleFunction pass to  <Controls> component . Ex : 
 <Controls
           ingredientsAdded={this.addIngredientHandler}
