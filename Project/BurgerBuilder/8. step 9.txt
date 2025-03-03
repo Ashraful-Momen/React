@@ -106,17 +106,13 @@ import { NavLink } from "react-router-dom";
 const Header = () => {
   return (
     <nav className="navbar navbar-expand-lg bg-body-tertiary shadow sticky-top rounded m-4">
-      <div className="container-fluid ">
-        {/* <a className="navbar-brand" href="#">
-          <img
-            className="rounded-circle"
-            style={{ height: "50px", width: "50px" }}
-            src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ..."
-            alt="Brand"
-          />
+      <div className="container-fluid">
+        {/* Brand/Logo */}
+        <NavLink className="nav-link navbar-brand" to="/">
+          BBuilder
+        </NavLink>
 
-        </a> */}
-        <NavLink className="nav-link navbar-brand " to="/">BBuilder</NavLink>
+        {/* Toggle Button for Mobile */}
         <button
           className="navbar-toggler"
           type="button"
@@ -128,16 +124,24 @@ const Header = () => {
         >
           <span className="navbar-toggler-icon"></span>
         </button>
-        <div className="collapse navbar-collapse d-flex justify-content-end " id="navbarNav">
-          <Nav className="navbar-nav">
+
+        {/* Navbar Links */}
+        <div className="collapse navbar-collapse" id="navbarNav">
+          <Nav className="navbar-nav ms-auto"> {/* Use ms-auto to align links to the right */}
             <NavItem>
-              <NavLink className="nav-link" to="/">Home</NavLink>
+              <NavLink className="nav-link" to="/">
+                Home
+              </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink className="nav-link" to="/order">Order</NavLink>
+              <NavLink className="nav-link" to="/order">
+                Order
+              </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink className="nav-link" to="/checkout">Checkout</NavLink>
+              <NavLink className="nav-link" to="/checkout">
+                Checkout
+              </NavLink>
             </NavItem>
           </Nav>
         </div>
