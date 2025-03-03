@@ -1,0 +1,290 @@
+=================================================================================== step : 10 (React Redux) ===========================================================================================
+
+#install : >>> npm install redux react-redux --save
+
+#create folder : src > redux > store.jsx, reducer.jsx , actionCreators.jsx , actionTypes.jsx. 
+
+#reducer.jsx => import initialState form BurgerBuilder component .  
+---------------
+
+
+#store.jsx => configure the store. with reducer.jsx
+--------------
+
+#App.jsx => import (provider and store) => 
+-------------
+import { BrowserRouter } from "react-router-dom";
+import Main from "./Components/Main";
+import { Provider } from "react-redux";
+import { store } from "./redux/store";
+
+function App() {
+  return (
+    <div>
+      <Provider store={store}>
+        <BrowserRouter>
+          <Main />
+        </BrowserRouter>
+      </Provider>
+    </div>
+  );
+}
+
+export default App;
+
+
+#BurgerBuilder.jsx : ___________________
+=> import {connect} from 'react-redux'
+=> import {addIngredient,removeIngredient, updatePurchable} from '../../actionCreators'
+=> write a function mapStateToProps [fetch state and function from redux to BurgerBuilder component]
+=> BurgerBuilder pass those redux props to Other componet <Burger>,<Controls> etc. replace this.state => this.props | Then Update the add/removeIngredient function . 
+=> mapDispatchToProps function [pass to actionCreators with payload => then pass to the redux reducer]
+
+-----------------------basic of redux Cycle---------------
+=> if we click any btn from Component then goes to actionCreators => reducer | 
+=> Reducer : after update the state then pass to store . Then Store => Component .  
+----------------------------------------------------------
+
+#actionType.jsx => 
+------------------
+export const ADD_INGREDIENT = "ADD_INGREDIENT";
+export const REMOVE_INGREDIENT = "REMOVE_INGREDIENT";
+export const UPDATE_PURCHASEABLE = "UPDATE_PURCHASEABLE";
+
+#actionCreators.jsx => pass to reducer 
+----------------
+
+import * as actionTypes from './actionTypes'
+
+export const addIngredient = (igtype) => {
+    return {
+        type: actionTypes.ADD_INGREDIENT,
+        payload: igtype
+    };
+};
+
+export const removeIngredient = (igtype) => {
+    return {
+        type: actionTypes.REMOVE_INGREDIENT,
+        payload: igtype
+    };
+};
+
+export const updatePurchaseable = (igtype) => {
+    return {
+        type: actionTypes.UPDATE_PURCHASEABLE,
+        payload: igtype
+    };
+};
+
+
+#reducer.jsx => 
+---------------
+import * as actionTypes from "./actionTypes";
+
+const INGREDIENT_PRICES = {
+  salad: 10,
+  cheese: 20,
+  meat: 30,
+};
+
+const INITIAL_STATE = {
+  ingredients: [
+    { type: "salad", amount: 0 },
+    { type: "cheese", amount: 0 },
+    { type: "meat", amount: 0 },
+  ],
+  totalPrice: 80,
+  purchaseable: false,
+};
+
+export const reducer = (state = INITIAL_STATE, action) => {
+  switch (action.type) {
+    case actionTypes.ADD_INGREDIENT: {
+      // Create a new array to ensure immutability
+      const updatedIngredients = state.ingredients.map(item => {
+        if (item.type === action.payload) {
+          return { ...item, amount: item.amount + 1 };
+        }
+        return item;
+      });
+      
+      return {
+        ...state,
+        ingredients: updatedIngredients,
+        totalPrice: state.totalPrice + INGREDIENT_PRICES[action.payload]
+      };
+    }
+
+    case actionTypes.REMOVE_INGREDIENT: {
+      // Find the ingredient to check if amount > 0
+      const ingredient = state.ingredients.find(item => item.type === action.payload);
+      
+      // If ingredient doesn't exist or amount is already 0, return current state
+      if (!ingredient || ingredient.amount <= 0) {
+        return state;
+      }
+      
+      // Create a new array with updated amounts
+      const updatedIngredients = state.ingredients.map(item => {
+        if (item.type === action.payload) {
+          return { ...item, amount: item.amount - 1 };
+        }
+        return item;
+      });
+      
+      return {
+        ...state,
+        ingredients: updatedIngredients,
+        totalPrice: state.totalPrice - INGREDIENT_PRICES[action.payload]
+      };
+    }
+
+    case actionTypes.UPDATE_PURCHASEABLE: {
+      // Calculate if we have at least one ingredient
+      const sum = state.ingredients.reduce((sum, item) => {
+        return sum + item.amount;
+      }, 0);
+      
+      return {
+        ...state,
+        purchaseable: sum > 0 // return ture : if sum > 0, we have at least one ingredient
+      };
+    }
+
+    default:
+      return state;
+  }
+};
+
+
+store.jsx=> 
+-------------
+import {createStore} from 'redux'
+import {reducer} from './reducer'
+
+export const store = createStore(reducer)
+
+App.jsx => 
+-------------
+import { BrowserRouter } from "react-router-dom";
+import Main from "./Components/Main";
+import { Provider } from "react-redux";
+import { store } from "./redux/store";
+
+function App() {
+  return (
+    <div>
+      <Provider store={store}>
+        <BrowserRouter>
+          <Main />
+        </BrowserRouter>
+      </Provider>
+    </div>
+  );
+}
+
+export default App;
+
+
+BurgerBuilder.jsx => 
+======================
+import React from "react";
+import { Modal, ModalBody, ModalHeader, ModalFooter, Button } from "reactstrap";
+import Burger from "./Burger/Burger";
+import Controls from "./Controls/Controls";
+import Summary from "./Summary/Summary";
+
+// Redux imports
+import { connect } from "react-redux";
+import { addIngredient, removeIngredient, updatePurchaseable } from "../../redux/actionCreators";
+
+const mapStateToProps = (state) => {
+  return {
+    ingredients: state.ingredients,
+    totalPrice: state.totalPrice,
+    purchaseable: state.purchaseable,
+  };
+};
+
+
+//goto actionCreators => then goto reducer => then update the store
+const mapDispatchToProps = (dispatch) => {
+  return {
+    addIngredient: (igtype) => dispatch(addIngredient(igtype)),
+    removeIngredient: (igtype) => dispatch(removeIngredient(igtype)),
+    updatePurchaseable: () => dispatch(updatePurchaseable()),
+  };
+};
+
+class BurgerBuilder extends React.Component {
+  state = {
+    isModalOpen: false,
+  };
+
+  addIngredientHandler = (type) => {
+    this.props.addIngredient(type);
+    this.props.updatePurchaseable();
+  };
+
+  removeIngredientHandler = (type) => {
+    this.props.removeIngredient(type);
+    this.props.updatePurchaseable();
+  };
+
+  toggleModal = () => {
+    this.setState((prevState) => ({
+      isModalOpen: !prevState.isModalOpen,
+    }));
+  };
+
+  handleNavigate = () => {
+    this.setState({ isModalOpen: false }, () => {
+      window.location.href = "/checkout";
+    });
+  };
+  
+  render() {
+    // Uncomment this to debug Redux state
+    // console.log("Current Redux State:", {
+    //   ingredients: this.props.ingredients,
+    //   totalPrice: this.props.totalPrice,
+    //   purchaseable: this.props.purchaseable
+    // });
+    
+    return (
+      <div>
+        <div className="d-flex flex-md-row flex-column">
+          <Burger ingredients={this.props.ingredients} />
+          <Controls
+            ingredientsAdded={this.addIngredientHandler}
+            ingredientsRemoved={this.removeIngredientHandler}
+            price={this.props.totalPrice}
+            toggleModal={this.toggleModal}
+            purchaseable={this.props.purchaseable}
+          />
+        </div>
+
+        <Modal isOpen={this.state.isModalOpen}>
+          <ModalHeader>Order Summary</ModalHeader>
+          <ModalBody>
+            <h5>Total Price: {this.props.totalPrice.toFixed(0)} BDT</h5>
+            <Summary ingredients={this.props.ingredients}/>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="secondary" onClick={this.toggleModal}>
+              Cancel
+            </Button>
+            <Button color="primary" onClick={this.handleNavigate}>
+              Continue to Checkout
+            </Button>
+          </ModalFooter>
+        </Modal>
+      </div>
+    );
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(BurgerBuilder);
+
+#=============== Unchanged Component => Burger.jsx , Controller.jsx, Summary.jsx (as like step: 9) ==================================
