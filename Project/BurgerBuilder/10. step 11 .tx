@@ -1,0 +1,81 @@
+============================================================================== Step : 11 (Design the Check Out Component)===================================================================
+#convert , <Checkout> component function to class component. 
+
+#Checkout.jsx => 
+-------------------
+
+import { Button } from "reactstrap";
+import React from "react";
+
+class Checkout extends React.Component {
+  state = {
+    values: {
+      deliveryAddress: "",
+      phone: "",
+      paymentType: "Cash On Delivery ",
+    },
+  };
+
+  handleNavigate = () => {
+    this.setState( () => {
+      window.location.href = "/";
+    });
+  };
+
+  inputChangerHandler = (e) => {
+    // Correctly update the state using setState
+    this.setState({
+      values: {
+        ...this.state.values,
+        [e.target.name]: e.target.value,
+      },
+    });
+  };
+
+  submitHandler = () => {
+    console.log(this.state.values);
+  };
+
+  render() {
+    return (
+      <div>
+        <form>
+          <textarea
+            name="deliveryAddress"
+            value={this.state.values.deliveryAddress}
+            className="form-control"
+            placeholder="Delivery Address"
+            onChange={(e) => this.inputChangerHandler(e)}
+          ></textarea>
+          <br />
+          <input
+            name="phone"
+            value={this.state.values.phone} // Fixed: Use this.state.values.phone
+            className="form-control"
+            placeholder="Phone"
+            onChange={(e) => this.inputChangerHandler(e)}
+          />
+          <br />
+          <select
+            name="paymentType"
+            value={this.state.values.paymentType}
+            className="form-control"
+            onChange={(e) => this.inputChangerHandler(e)} // Added onChange for select
+          >
+            <option value="Cash On Delivery ">Cash On Delivery</option>
+            <option value="Bkash">Bkash</option>
+          </select>
+          <br />
+          <Button className="bg-info m-2" onClick={this.submitHandler}>
+            Place Order
+          </Button>
+          <Button className="bg-danger m-2" onClick={this.handleNavigate}>
+            Cancel
+          </Button>
+        </form>
+      </div>
+    );
+  }
+}
+
+export default Checkout;
