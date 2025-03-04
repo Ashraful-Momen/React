@@ -1,0 +1,217 @@
+============================================================================== Step : 13 (Checkout Component : Imporve) ===================================================================
+# add spinner while creating the order . => https://lukehaas.me/projects/css-loaders/
+    => change the bg,color.
+
+# create a folder : Components > Spinner > Spinner.js , Spinner.css | for creating spinner component . 
+
+# import the Spinner component to the Checkout Component . 
+
+# in state , declare => 'isLoading : false' . handleSubmit function => isLoading :true . 
+    => when get the axios response then set =>  isLoading :false.
+    
+# in render(){
+
+let form = 'Total form code ' ; 
+
+return (
+    {this.state.isLoading ? <Spinner/> : form}
+); 
+}
+
+# after submit the place order pop up a modal => in state isModalOpen :fasle , modalMsg:'',
+
+# if order placed successfull: reset the redux (value : ingredients,totalAmount etc). 
+    => actionType.jsx => export const RESET_INGREDIENT = '';
+    => actionCreator.jsx => 
+    ------------------------
+    export const resetIngredient = () =>{
+        return {
+            type: actionTypes.RESET_INGREDIENT
+        }
+    }
+    => reducer.jsx=> 
+    -----------------
+    case actionTypes.RESET_INGREDIENT : 
+        return {
+            ...state,
+              ingredients: [
+                    { type: "salad", amount: 0 },
+                    { type: "cheese", amount: 0 },
+                    { type: "meat", amount: 0 },
+                  ],
+                  totalPrice: 80,
+                  purchaseable: false,
+            
+        }
+        
+    => call the RESET_INGREDIENT function by mapDispatchToProps 
+    
+# ****If we want to use any function then we can call it in Class Component => this.props.function_name_from_actionCreators.jsx
+
+#Checkout.jsx=> 
+-----------------
+import { Button, Modal, ModalBody, ModalFooter, Spinner } from "reactstrap";
+import React from "react";
+import { connect } from "react-redux";
+import Ingredient from "../../Ingredient/Ingredient";
+
+import { NavLink } from "react-router-dom";
+import axios from "axios";
+import { resetIngredient } from "../../../../redux/actionCreators";
+
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
+    ingredients: state.ingredients,
+    totalPrice: state.totalPrice,
+    purchaseable: state.purchaseable,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    resetIngredient: () => dispatch(resetIngredient()),
+  };
+};
+
+class Checkout extends React.Component {
+  state = {
+    values: {
+      deliveryAddress: "",
+      phone: "",
+      paymentType: "Cash On Delivery ",
+    },
+
+    isLoading: false,
+    isModalOpen: false,
+    modalMsg: "",
+  };
+
+  inputChangerHandler = (e) => {
+    // Correctly update the state using setState
+    this.setState({
+      values: {
+        ...this.state.values,
+        [e.target.name]: e.target.value,
+      },
+    });
+  };
+
+  submitHandler = () => {
+    this.setState({
+      isLoading: true,
+    });
+
+    const order = {
+      ingredients: this.props.ingredients,
+      totalPrice: this.props.totalPrice,
+      paymentType: this.state.values.paymentType,
+      phone: this.state.values.phone,
+      deliveryAddress: this.state.values.deliveryAddress,
+      orderTime: new Date().toLocaleString(),
+    };
+
+    axios
+      .post(
+        "https://bbuilder-7276c-default-rtdb.firebaseio.com/orders.json",
+        order
+      )
+      .then((response) => {
+        console.log(response);
+
+        if (response.status === 200) {
+          this.setState({
+            isLoading: false,
+            isModalOpen: true,
+            modalMsg: "Order placed Successfully!",
+          });
+
+          //for reset the redux value : ___________________
+          this.props.resetIngredient();
+        } else {
+          this.setState({
+            isLoading: false,
+            isModalOpen: true,
+            modalMsg: "SomeThing Went Wrong!",
+          });
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        this.setState({
+          isLoading: false,
+          isModalOpen: true,
+          modalMsg: "SomeThing Went Wrong!",
+        });
+      });
+
+    console.log(order);
+  };
+
+  render() {
+    let form = (
+      <div>
+        <h4>Price : {this.props.totalPrice}</h4>
+        <form>
+          <textarea
+            name="deliveryAddress"
+            value={this.state.values.deliveryAddress}
+            className="form-control"
+            placeholder="Delivery Address"
+            onChange={(e) => this.inputChangerHandler(e)}></textarea>
+          <br />
+          <input
+            name="phone"
+            value={this.state.values.phone} // Fixed: Use this.state.values.phone
+            className="form-control"
+            placeholder="Phone"
+            onChange={(e) => this.inputChangerHandler(e)}
+          />
+          <br />
+          <select
+            name="paymentType"
+            value={this.state.values.paymentType}
+            className="form-control"
+            onChange={(e) => this.inputChangerHandler(e)} // Added onChange for select
+          >
+            <option value="Cash On Delivery ">Cash On Delivery</option>
+            <option value="Bkash">Bkash</option>
+          </select>
+          <br />
+          <Button className="bg-info m-2" onClick={this.submitHandler}>
+            Place Order
+          </Button>
+
+          <NavLink to="/">
+            <Button className="bg-info m-2">Cancel</Button>
+          </NavLink>
+        </form>
+      </div>
+    );
+
+    return (
+      <div className="d-flex justify-content-center">
+        {this.state.isLoading ? <Spinner /> : form}
+        <Modal isOpen={this.state.isModalOpen}>
+          <ModalBody>
+            <p>{this.state.modalMsg}</p>
+          </ModalBody>
+
+          <ModalFooter>
+            <NavLink to="/">
+              <Button
+                color="secondary"
+                onClick={() => this.setState({ isModalOpen: false })}>
+                Close
+              </Button>
+            </NavLink>
+          </ModalFooter>
+        </Modal>
+      </div>
+    );
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Checkout);
+
+=============================== Other Component is unchanged ==================================
