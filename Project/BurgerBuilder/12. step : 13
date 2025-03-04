@@ -1,3 +1,4 @@
+
 ============================================================================== Step : 13 (Checkout Component : Imporve) ===================================================================
 # add spinner while creating the order . => https://lukehaas.me/projects/css-loaders/
     => change the bg,color.
@@ -47,6 +48,157 @@ return (
     => call the RESET_INGREDIENT function by mapDispatchToProps 
     
 # ****If we want to use any function then we can call it in Class Component => this.props.function_name_from_actionCreators.jsx
+
+#Spinner.jsx=> 
+---------------
+import React from 'react'
+import "./Spinner.css"
+
+
+const Spinner = () => {
+  return (
+    <div className='loader d-flex justify-content-center mt-4'>
+       <p className='text-center text-dark'> Loading...</p>
+    </div>
+  )
+}
+
+export default Spinner
+
+
+#actionTypes.jsx=>
+------------------
+export const ADD_INGREDIENT = "ADD_INGREDIENT";
+export const REMOVE_INGREDIENT = "REMOVE_INGREDIENT";
+export const UPDATE_PURCHASEABLE = "UPDATE_PURCHASEABLE";
+export const RESET_INGREDIENT = "RESET_INGREDIENT";
+
+#actionCreators.jsx=> 
+---------------------
+import * as actionTypes from './actionTypes'
+
+export const addIngredient = (igtype) => {
+    return {
+        type: actionTypes.ADD_INGREDIENT,
+        payload: igtype
+    };
+};
+
+export const removeIngredient = (igtype) => {
+    return {
+        type: actionTypes.REMOVE_INGREDIENT,
+        payload: igtype
+    };
+};
+
+export const updatePurchaseable = (igtype) => {
+    return {
+        type: actionTypes.UPDATE_PURCHASEABLE,
+        payload: igtype
+    };
+};
+
+export const resetIngredient = () => {
+    return {
+        type: actionTypes.RESET_INGREDIENT,
+       
+    };
+};
+
+#reducer.jsx=> 
+---------------
+import * as actionTypes from "./actionTypes";
+
+const INGREDIENT_PRICES = {
+  salad: 10,
+  cheese: 20,
+  meat: 30,
+};
+
+const INITIAL_STATE = {
+  ingredients: [
+    { type: "salad", amount: 0 },
+    { type: "cheese", amount: 0 },
+    { type: "meat", amount: 0 },
+  ],
+  totalPrice: 80,
+  purchaseable: false,
+};
+
+export const reducer = (state = INITIAL_STATE, action) => {
+  switch (action.type) {
+    case actionTypes.ADD_INGREDIENT: {
+      // Create a new array to ensure immutability
+      const updatedIngredients = state.ingredients.map(item => {
+        if (item.type === action.payload) {
+          return { ...item, amount: item.amount + 1 };
+        }
+        return item;
+      });
+      
+      return {
+        ...state,
+        ingredients: updatedIngredients,
+        totalPrice: state.totalPrice + INGREDIENT_PRICES[action.payload]
+      };
+    }
+
+    case actionTypes.REMOVE_INGREDIENT: {
+      // Find the ingredient to check if amount > 0
+      const ingredient = state.ingredients.find(item => item.type === action.payload);
+      
+      // If ingredient doesn't exist or amount is already 0, return current state
+      if (!ingredient || ingredient.amount <= 0) {
+        return state;
+      }
+      
+      // Create a new array with updated amounts
+      const updatedIngredients = state.ingredients.map(item => {
+        if (item.type === action.payload) {
+          return { ...item, amount: item.amount - 1 };
+        }
+        return item;
+      });
+      
+      return {
+        ...state,
+        ingredients: updatedIngredients,
+        totalPrice: state.totalPrice - INGREDIENT_PRICES[action.payload]
+      };
+    }
+
+    case actionTypes.UPDATE_PURCHASEABLE: {
+      // Calculate if we have at least one ingredient
+      const sum = state.ingredients.reduce((sum, item) => {
+        return sum + item.amount;
+      }, 0);
+      
+      return {
+        ...state,
+        purchaseable: sum > 0 // return ture : if sum > 0, we have at least one ingredient
+      };
+    }
+
+    case actionTypes.RESET_INGREDIENT: {
+      return {
+        ...state,
+        ingredients: [
+          { type: "salad", amount: 0 },
+          { type: "cheese", amount: 0 },
+          { type: "meat", amount: 0 },
+        ],
+        totalPrice: 80,
+        purchaseable: false,
+      };
+    }
+
+    default:
+      return state;
+  }
+};
+
+
+
 
 #Checkout.jsx=> 
 -----------------
