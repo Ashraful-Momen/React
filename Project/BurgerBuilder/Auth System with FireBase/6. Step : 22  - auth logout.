@@ -1,0 +1,238 @@
+============================================================ Step: 22 - Auth Logout ==========================================================
+# remove : token , userId, expirationTime form localStorage . 
+# authActionCreator.js => 
+----------------------------
+export const logout = () => {
+    
+    localStorage.removeItem('token');
+    localStorage.removeItem('expirationTime');
+    localStorage.removeItem('userId');
+    
+    return {
+        type: actionTypes.AUTH_LOGOUT,
+        }
+    
+}
+
+# Reducer.jsx => when dispatch logout() => remove the token and userId and add case actionTypes.AUTH_LOGOUT 
+------------------
+case actionTypes.AUTH_LOGOUT : 
+    return {
+        ...state,
+        token: null,
+        userId: null,
+    }
+    
+#Dispatch logout() in authActionCreators.jsx => 
+-----------------------------------------------
+export const logout = () => {
+    
+  localStorage.removeItem('token');
+  localStorage.removeItem('expirationTime');
+  localStorage.removeItem('userId');
+  
+  return {
+      type: actionTypes.AUTH_LOGOUT,
+      }
+  
+}
+
+
+//for auth check : call this function in the root component cz when user run the app firstly check the user has valid token or not. root : <Mian.jsx>
+
+export const authCheck = () => dispatch => {
+
+  //check the token : if token exit and token time not expire then user pass the auth check : 
+
+  const token = localStorage.getItem('token'); 
+
+  if(!token) {
+    //Logout
+    dispatch(logout()); 
+
+
+  }
+  else{
+    // for the date format convertion use => new Date(here_the_code)
+    const expirationTime = new Date (localStorage.getItem('expirationTime'))
+
+    //if expiration time <= current time then token expire 
+    if(expirationTime <= new Date()){
+      //Logout 
+      dispatch(logout())
+    }
+    //this else block : indecate that user has the validate token . 
+    else{
+
+      const userId = localStorage.getItem('userId')
+      dispatch (authSuccess(token,userId)); 
+
+    }
+  }
+}
+
+#For custom Logout create a new LogOut Component inside the Auth Folder > Logout.jsx
+------------------------------------------------------------------------------------
+import React, { Component } from 'react'
+import { connect } from 'react-redux'
+
+import { logout } from '../../redux/authActionCreators'
+
+const mapDispatchToProps = dispatch => {
+    return {
+        logout: () => dispatch(logout()),
+    }
+}
+
+
+class Logout extends Component {
+    componentDidMount(){
+        this.props.logout(); 
+    }
+  render() {
+    return (
+      <div>
+        
+      </div>
+    )
+  }
+}
+
+
+export default connect(null,mapDispatchToProps)(Logout);
+
+#Header.jsx => add the Logout component => 
+--------------
+import React from "react";
+import { Nav, NavItem } from "reactstrap";
+import { NavLink } from "react-router-dom";
+import { connect } from "react-redux";
+
+const mapStateToProps = (state) => {
+  console.log("redux state", state);
+  return {
+    isAuthenticated: state.token,
+  };
+};
+
+const Header = (props) => {
+  let links = null;
+  if (props.isAuthenticated === null) {
+    links = (
+      <>
+        <NavItem>
+          <NavLink className="nav-link" to="/">
+            Home
+          </NavLink>
+        </NavItem>
+
+        <NavItem>
+          <NavLink className="nav-link" to="/login">
+            Login
+          </NavLink>
+        </NavItem>
+        
+       
+      </>
+    );
+  } else {
+    links = (
+      <>
+        <NavItem>
+          <NavLink className="nav-link" to="/">
+            Home
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink className="nav-link" to="/order">
+            Order
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink className="nav-link" to="/checkout">
+            Checkout
+          </NavLink>
+        </NavItem>
+        
+        
+        <NavItem>
+          <NavLink className="nav-link" to="/logout">
+            Logout
+          </NavLink>
+        </NavItem>
+    
+      </>
+    );
+  }
+  return (
+    <nav className="navbar navbar-expand-lg bg-body-tertiary shadow sticky-top rounded m-4">
+      <div className="container-fluid">
+        {/* Brand/Logo */}
+        <NavLink className="nav-link navbar-brand" to="/">
+          BBuilder
+        </NavLink>
+
+        {/* Toggle Button for Mobile */}
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation">
+          <span className="navbar-toggler-icon"></span>
+        </button>
+
+        {/* Navbar Links */}
+        <div className="collapse navbar-collapse" id="navbarNav">
+          <Nav className="navbar-nav ms-auto">
+            {" "}
+            {/* Use ms-auto to align links to the right */}
+            {links}
+          </Nav>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+export default connect(mapStateToProps, null)(Header);
+
+
+#Main.jsx => add the Logout Component => 
+------------
+const Main = ({ isAuthenticated, authCheck }) => {
+  useEffect(() => {
+    authCheck(); // Every time : Call authCheck when the component mounts
+  }, [authCheck]);
+
+  return (
+    <div>
+      <Header />
+      <div className="container">
+        <Routes>
+          {/* Public Route */}
+          <Route path="/login" element={<Auth />} />
+       
+          
+
+          {/* Protected Routes */}
+          {isAuthenticated ? (
+            <>
+              <Route path="/" element={<BurgerBuilder />} />
+              <Route path="/order" element={<Order />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/logout" element={<Logout />} />
+             
+            </>
+          ) : (
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          )}
+        </Routes>
+      </div>
+    </div>
+  );
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Main);
