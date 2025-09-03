@@ -16,7 +16,7 @@
 
 
 
-============================================================ BookSlice ================================================
+============================================================ src/features/ BookSlice ================================================
 import {createSlice} from '@reduxjs/toolkit';
 
 
@@ -64,7 +64,7 @@ export const {  } = bookSlice.actions;
 
 export default bookSlice.reducer;
 
-============================================================ app / Store.js ================================================
+============================================================ src/ app / Store.js ================================================
 
 import { configureStore } from '@reduxjs/toolkit'; 
 import BookSlice  from '../features/bookSlice';
@@ -78,7 +78,8 @@ export const store = configureStore({
 
 
 
-============================================================ main.jsx ================================================
+============================================================ src/ main.jsx ================================================
+    
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
@@ -97,7 +98,7 @@ createRoot(document.getElementById('root')).render(
 )
 
 
-============================================================ App.jsx ================================================
+============================================================ src/ App.jsx ================================================
 import React from 'react'
 import BookList from './components/BookList'
 
@@ -111,7 +112,7 @@ const App = () => {
 }
 
 export default App
-================================================== BookList ======================================================
+================================================== src -> components ->  BookList======================================================
 import React from "react";
 import { useSelector } from "react-redux";
 
