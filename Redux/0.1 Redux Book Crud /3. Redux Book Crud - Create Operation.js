@@ -3,7 +3,7 @@
 
 
 
-============================================================ BookSlice ================================================
+============================================================ src > components > BookSlice ================================================
 import {createSlice} from '@reduxjs/toolkit';
 
 
@@ -61,7 +61,7 @@ export const bookSlice = createSlice({
 export const { deleteBook, addBook } = bookSlice.actions;
 
 export default bookSlice.reducer;
-============================================================ app / Store.js ================================================
+============================================================ src > app > Store.js ================================================
 
 import { configureStore } from '@reduxjs/toolkit'; 
 import BookSlice  from '../features/bookSlice';
@@ -75,7 +75,7 @@ export const store = configureStore({
 
 
 
-============================================================ main.jsx ================================================
+============================================================ src > main.jsx ================================================
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
@@ -94,7 +94,7 @@ createRoot(document.getElementById('root')).render(
 )
 
 
-============================================================ App.jsx ================================================
+============================================================ src > App.jsx ================================================
 import React from 'react'
 
 
@@ -113,7 +113,7 @@ const App = () => {
 
 export default App
 
-================================================== BookList ======================================================
+================================================== src > component > BookList ======================================================
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -169,7 +169,7 @@ const BookList = () => {
 export default BookList;
 
 
-===================================================================== BookForm ==========================================================
+===================================================================== src > components > BookForm ==========================================================
 
 import React, { useState } from "react";
 
