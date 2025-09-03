@@ -112,7 +112,7 @@ const App = () => {
 }
 
 export default App
-================================================== src -> components ->  BookList======================================================
+================================================== src > components: >  BookList======================================================
 import React from "react";
 import { useSelector } from "react-redux";
 
