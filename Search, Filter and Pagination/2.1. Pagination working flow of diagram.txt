@@ -176,7 +176,7 @@ New Calculations in App.jsx:
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │  indexOfLastPost = 10 * 10 = 100                                              │
 │  indexOfFirstPost = 100 - 10 = 90                                             │
-│  currentPost = post.slice(90, 100) = [posts 91-100]                           │
+│  currentPost = post.slice(90, 100) = [array indices 90-99]                    │
 └─────────────────────────────────────────────────────────────────────────────────┘
 
 New Pagination Calculations:
