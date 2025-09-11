@@ -1,117 +1,373 @@
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│                           REACT REDUX WORKFLOW DIAGRAM                         │
-│                        Search, Filter & Pagination App                         │
+│                    REACT REDUX SEARCH + FILTER WORKFLOW                        │
+│                           Step-by-Step with Examples                           │
 └─────────────────────────────────────────────────────────────────────────────────┘
 
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                              INITIAL STATE                                     │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+Redux Store State:
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│  items: [                                                                      │
+│    { id: 1, name: 'Apple', category: 'Fruit' },                               │
+│    { id: 2, name: 'Banana', category: 'Fruit' },                              │
+│    { id: 3, name: 'Carrot', category: 'Vegetable' },                          │
+│    { id: 4, name: 'Broccoli', category: 'Vegetable' },                        │
+│    { id: 5, name: 'Grapes', category: 'Fruit' },                              │
+│    { id: 6, name: 'Tomato', category: 'Vegetable' }                           │
+│  ],                                                                            │
+│  searchTerm: '',                                                               │
+│  filterCategory: 'All',                                                        │
+│  currentPage: 1,                                                               │
+│  itemsPerPage: 3                                                               │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+UI Display (Page 1):
+┌─────────────────┐
+│ Search: [     ] │
+│ Filter: [All ▼] │
+│                 │
+│ • Apple - Fruit │
+│ • Banana - Fruit│
+│ • Carrot - Veg  │
+│                 │
+│ [1] [2]         │
+└─────────────────┘
+
+═════════════════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                              STEP 1: USER TYPES SEARCH                         │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+User Action: Types "app" in search input
+
+┌─────────────────────────────────────────┐
+│           EVENT FLOW                    │
+└─────────────────────────────────────────┘
+
+1. onChange Event Triggered
+   ┌─────────────────────────────────────┐
+   │  <input onChange={handleSearch} />  │
+   │  e.target.value = "app"             │
+   └─────────────────────────────────────┘
+             │
+             ▼
+2. handleSearch Function Called
+   ┌─────────────────────────────────────┐
+   │  const handleSearch = (e) => {      │
+   │    dispatch(setSearchTerm(          │
+   │      e.target.value  // "app"       │
+   │    ));                              │
+   │  };                                 │
+   └─────────────────────────────────────┘
+             │
+             ▼
+3. Redux Action Dispatched
+   ┌─────────────────────────────────────┐
+   │  dispatch({                         │
+   │    type: 'items/setSearchTerm',     │
+   │    payload: 'app'                   │
+   │  })                                 │
+   └─────────────────────────────────────┘
+             │
+             ▼
+4. Redux Reducer Updates State
+   ┌─────────────────────────────────────┐
+   │  setSearchTerm: (state, action) => {│
+   │    state.searchTerm = action.payload│ ← "app"
+   │    state.currentPage = 1;           │ ← Reset to page 1
+   │  }                                  │
+   └─────────────────────────────────────┘
+
+Updated Redux State:
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│  searchTerm: 'app',        ← CHANGED                                           │
+│  filterCategory: 'All',                                                        │
+│  currentPage: 1,           ← RESET                                             │
+│  itemsPerPage: 3                                                               │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+═════════════════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                         STEP 2: FILTERING COMPUTATION                          │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+Component Re-renders due to state change → filteredItems computed:
+
+┌─────────────────────────────────────────┐
+│        FILTERING LOGIC                  │
+└─────────────────────────────────────────┘
+
+const filteredItems = items.filter((item) => {
+  const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
+  const matchesCategory = filterCategory === 'All' || item.category === filterCategory;
+  return matchesSearch && matchesCategory;
+});
+
+Processing each item:
+
+Item 1: { id: 1, name: 'Apple', category: 'Fruit' }
+┌─────────────────────────────────────────────────────────────────┐
+│ matchesSearch = 'apple'.includes('app')     → TRUE             │
+│ matchesCategory = 'All' === 'All'           → TRUE             │
+│ Result: TRUE && TRUE                        → INCLUDE          │
+└─────────────────────────────────────────────────────────────────┘
+
+Item 2: { id: 2, name: 'Banana', category: 'Fruit' }
+┌─────────────────────────────────────────────────────────────────┐
+│ matchesSearch = 'banana'.includes('app')    → FALSE            │
+│ matchesCategory = 'All' === 'All'           → TRUE             │
+│ Result: FALSE && TRUE                       → EXCLUDE          │
+└─────────────────────────────────────────────────────────────────┘
+
+Item 3: { id: 3, name: 'Carrot', category: 'Vegetable' }
+┌─────────────────────────────────────────────────────────────────┐
+│ matchesSearch = 'carrot'.includes('app')    → FALSE            │
+│ matchesCategory = 'All' === 'All'           → TRUE             │
+│ Result: FALSE && TRUE                       → EXCLUDE          │
+└─────────────────────────────────────────────────────────────────┘
+
+Item 4: { id: 4, name: 'Broccoli', category: 'Vegetable' }
+┌─────────────────────────────────────────────────────────────────┐
+│ matchesSearch = 'broccoli'.includes('app')  → FALSE            │
+│ matchesCategory = 'All' === 'All'           → TRUE             │
+│ Result: FALSE && TRUE                       → EXCLUDE          │
+└─────────────────────────────────────────────────────────────────┘
+
+Item 5: { id: 5, name: 'Grapes', category: 'Fruit' }
+┌─────────────────────────────────────────────────────────────────┐
+│ matchesSearch = 'grapes'.includes('app')    → FALSE            │
+│ matchesCategory = 'All' === 'All'           → TRUE             │
+│ Result: FALSE && TRUE                       → EXCLUDE          │
+└─────────────────────────────────────────────────────────────────┘
+
+Item 6: { id: 6, name: 'Tomato', category: 'Vegetable' }
+┌─────────────────────────────────────────────────────────────────┐
+│ matchesSearch = 'tomato'.includes('app')    → FALSE            │
+│ matchesCategory = 'All' === 'All'           → TRUE             │
+│ Result: FALSE && TRUE                       → EXCLUDE          │
+└─────────────────────────────────────────────────────────────────┘
+
+filteredItems Result:
+┌─────────────────────────────────────────────────────────────────┐
+│ [{ id: 1, name: 'Apple', category: 'Fruit' }]                  │
+│ Length: 1 item                                                  │
+└─────────────────────────────────────────────────────────────────┘
+
+UI After Search:
+┌─────────────────┐
+│ Search: [app  ] │
+│ Filter: [All ▼] │
+│                 │
+│ • Apple - Fruit │
+│                 │
+│ [1]             │ ← Only 1 page now
+└─────────────────┘
+
+═════════════════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                         STEP 3: USER SELECTS FILTER                            │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+User Action: Selects "Fruit" from filter dropdown
+(Search term "app" is still active)
+
+┌─────────────────────────────────────────┐
+│           EVENT FLOW                    │
+└─────────────────────────────────────────┘
+
+1. onChange Event on Select
+   ┌─────────────────────────────────────┐
+   │ <select onChange={handleFilter}>    │
+   │   e.target.value = "Fruit"          │
+   └─────────────────────────────────────┘
+             │
+             ▼
+2. handleFilter Function Called
+   ┌─────────────────────────────────────┐
+   │ const handleFilter = (e) => {       │
+   │   dispatch(setFilterCategory(       │
+   │     e.target.value  // "Fruit"      │
+   │   ));                               │
+   │ };                                  │
+   └─────────────────────────────────────┘
+             │
+             ▼
+3. Redux Action Dispatched
+   ┌─────────────────────────────────────┐
+   │ dispatch({                          │
+   │   type: 'items/setFilterCategory',  │
+   │   payload: 'Fruit'                  │
+   │ })                                  │
+   └─────────────────────────────────────┘
+             │
+             ▼
+4. Redux Reducer Updates State
+   ┌─────────────────────────────────────┐
+   │ setFilterCategory: (state, action) =│
+   │   state.filterCategory = action.    │ ← "Fruit"
+   │     payload;                        │
+   │   state.currentPage = 1;            │ ← Reset to page 1
+   │ }                                   │
+   └─────────────────────────────────────┘
+
+Updated Redux State:
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│  searchTerm: 'app',        ← Still active                                      │
+│  filterCategory: 'Fruit',  ← CHANGED                                           │
+│  currentPage: 1,           ← RESET                                             │
+│  itemsPerPage: 3                                                               │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+═════════════════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                    STEP 4: COMBINED SEARCH + FILTER                            │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+Component Re-renders → filteredItems computed with BOTH filters:
+
+┌─────────────────────────────────────────┐
+│     COMBINED FILTERING LOGIC            │
+└─────────────────────────────────────────┘
+
+const filteredItems = items.filter((item) => {
+  const matchesSearch = item.name.toLowerCase().includes('app');      ← "app"
+  const matchesCategory = 'Fruit' === 'All' || item.category === 'Fruit'; ← "Fruit"
+  return matchesSearch && matchesCategory;
+});
+
+Processing each item with BOTH conditions:
+
+Item 1: { id: 1, name: 'Apple', category: 'Fruit' }
+┌─────────────────────────────────────────────────────────────────┐
+│ matchesSearch = 'apple'.includes('app')     → TRUE             │
+│ matchesCategory = 'Fruit' === 'Fruit'       → TRUE             │
+│ Result: TRUE && TRUE                        → INCLUDE          │
+└─────────────────────────────────────────────────────────────────┘
+
+Item 2: { id: 2, name: 'Banana', category: 'Fruit' }
+┌─────────────────────────────────────────────────────────────────┐
+│ matchesSearch = 'banana'.includes('app')    → FALSE            │
+│ matchesCategory = 'Fruit' === 'Fruit'       → TRUE             │
+│ Result: FALSE && TRUE                       → EXCLUDE          │
+└─────────────────────────────────────────────────────────────────┘
+
+Item 3: { id: 3, name: 'Carrot', category: 'Vegetable' }
+┌─────────────────────────────────────────────────────────────────┐
+│ matchesSearch = 'carrot'.includes('app')    → FALSE            │
+│ matchesCategory = 'Vegetable' === 'Fruit'   → FALSE            │
+│ Result: FALSE && FALSE                      → EXCLUDE          │
+└─────────────────────────────────────────────────────────────────┘
+
+Item 4: { id: 4, name: 'Broccoli', category: 'Vegetable' }
+┌─────────────────────────────────────────────────────────────────┐
+│ matchesSearch = 'broccoli'.includes('app')  → FALSE            │
+│ matchesCategory = 'Vegetable' === 'Fruit'   → FALSE            │
+│ Result: FALSE && FALSE                      → EXCLUDE          │
+└─────────────────────────────────────────────────────────────────┘
+
+Item 5: { id: 5, name: 'Grapes', category: 'Fruit' }
+┌─────────────────────────────────────────────────────────────────┐
+│ matchesSearch = 'grapes'.includes('app')    → FALSE            │
+│ matchesCategory = 'Fruit' === 'Fruit'       → TRUE             │
+│ Result: FALSE && TRUE                       → EXCLUDE          │
+└─────────────────────────────────────────────────────────────────┘
+
+Item 6: { id: 6, name: 'Tomato', category: 'Vegetable' }
+┌─────────────────────────────────────────────────────────────────┐
+│ matchesSearch = 'tomato'.includes('app')    → FALSE            │
+│ matchesCategory = 'Vegetable' === 'Fruit'   → FALSE            │
+│ Result: FALSE && FALSE                      → EXCLUDE          │
+└─────────────────────────────────────────────────────────────────┘
+
+Final filteredItems Result:
+┌─────────────────────────────────────────────────────────────────┐
+│ [{ id: 1, name: 'Apple', category: 'Fruit' }]                  │
+│ Length: 1 item (same as before, but now more restricted)       │
+└─────────────────────────────────────────────────────────────────┘
+
+═════════════════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                         STEP 5: PAGINATION CALCULATION                         │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+With filteredItems.length = 1:
+
+┌─────────────────────────────────────────┐
+│        PAGINATION LOGIC                 │
+└─────────────────────────────────────────┘
+
+// Pagination calculation
+const indexOfLastItem = currentPage * itemsPerPage;    // 1 * 3 = 3
+const indexOfFirstItem = indexOfLastItem - itemsPerPage; // 3 - 3 = 0
+const currentItems = filteredItems.slice(0, 3);        // slice(0, 3)
+
+currentItems = [{ id: 1, name: 'Apple', category: 'Fruit' }]
+
+// Total pages calculation
+const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+// Math.ceil(1 / 3) = Math.ceil(0.333) = 1
+
+═════════════════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                            FINAL UI STATE                                      │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+UI After Search + Filter:
 ┌─────────────────────┐
-│       App.js        │
-│  ┌───────────────┐  │
-│  │   <Provider>  │  │ ──┐
-│  │     store     │  │   │
-│  └───────────────┘  │   │
-└─────────────────────┘   │
-                          │
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                              REDUX STORE                                       │
-│  ┌─────────────────────────────────────────────────────────────────────────┐  │
-│  │                           itemSlice.js                                  │  │
-│  │                                                                         │  │
-│  │  STATE:                          ACTIONS:                              │  │
-│  │  ├─ items: []                    ├─ setSearchTerm()                    │  │
-│  │  ├─ searchTerm: ''               ├─ setFilterCategory()                │  │
-│  │  ├─ filterCategory: 'All'        └─ setCurrentPage()                   │  │
-│  │  ├─ currentPage: 1                                                     │  │
-│  │  └─ itemsPerPage: 3                                                    │  │
-│  └─────────────────────────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────────────────────┘
-                          │                                    ▲
-                          │ useSelector()                      │ dispatch()
-                          ▼                                    │
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                            ItemList.js                                         │
-│                                                                                 │
-│  USER INTERACTIONS:                    COMPUTED VALUES:                        │
-│  ┌───────────────────┐                ┌─────────────────────┐                 │
-│  │  Search Input     │ ──────────────▶│  filteredItems      │                 │
-│  │  [handleSearch]   │                │  (items.filter())   │                 │
-│  └───────────────────┘                └─────────────────────┘                 │
-│           │                                     │                              │
-│           │                           ┌─────────────────────┐                 │
-│  ┌───────────────────┐                │  currentItems       │                 │
-│  │  Filter Dropdown  │ ──────────────▶│  (slice for page)   │                 │
-│  │  [handleFilter]   │                └─────────────────────┘                 │
-│  └───────────────────┘                          │                              │
-│           │                                     │                              │
-│           │                           ┌─────────────────────┐                 │
-│           │                           │  totalPages         │                 │
-│           │                           │  (Math.ceil())      │                 │
-│           │                           └─────────────────────┘                 │
-│           │                                     │                              │
-│  ┌───────────────────┐                          │                              │
-│  │  Pagination       │ ◀────────────────────────┘                              │
-│  │  Component        │                                                         │
-│  └───────────────────┘                                                         │
-└─────────────────────────────────────────────────────────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                           Pagination.js                                        │
-│                                                                                 │
-│  PROPS RECEIVED:                       USER INTERACTIONS:                      │
-│  ├─ totalPages                         ┌─────────────────────┐                 │
-│  ├─ currentPage                        │  Page Number        │                 │
-│  └─ onPageChange()                     │  Buttons            │                 │
-│                                        │  [onClick]          │                 │
-│  RENDERED ELEMENTS:                    └─────────────────────┘                 │
-│  ┌─────────────────────┐                         │                             │
-│  │  [1] [2] [3] ...    │ ◀───────────────────────┘                             │
-│  │  Page Buttons       │                                                       │
-│  └─────────────────────┘                                                       │
-└─────────────────────────────────────────────────────────────────────────────────┘
+│ Search: [app      ] │
+│ Filter: [Fruit  ▼] │
+│                     │
+│ • Apple - Fruit     │
+│                     │
+│ [1]                 │ ← Only 1 page, 1 item
+└─────────────────────┘
+
+═════════════════════════════════════════════════════════════════════════════════
 
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│                              DATA FLOW SEQUENCE                                │
+│                            ALTERNATIVE SCENARIO                                │
+│                      What if user searches "a" + Filter "Fruit"?               │
 └─────────────────────────────────────────────────────────────────────────────────┘
 
-1. USER ACTION:          Search input / Filter selection / Page click
-                         │
-                         ▼
-2. EVENT HANDLER:        handleSearch() / handleFilter() / onPageChange()
-                         │
-                         ▼
-3. REDUX DISPATCH:       dispatch(setSearchTerm/setFilterCategory/setCurrentPage)
-                         │
-                         ▼
-4. STATE UPDATE:         Redux store updates state
-                         │
-                         ▼
-5. RE-RENDER:            useSelector() triggers component re-render
-                         │
-                         ▼
-6. COMPUTATION:          filteredItems → currentItems → totalPages
-                         │
-                         ▼
-7. UI UPDATE:            New items displayed, pagination updated
+Search: "a", Filter: "Fruit"
+
+Items that match:
+- Apple: 'apple'.includes('a') → TRUE && 'Fruit' === 'Fruit' → TRUE ✓
+- Banana: 'banana'.includes('a') → TRUE && 'Fruit' === 'Fruit' → TRUE ✓  
+- Grapes: 'grapes'.includes('a') → TRUE && 'Fruit' === 'Fruit' → TRUE ✓
+
+Result: 3 items → 1 page (itemsPerPage = 3)
+
+UI Would Show:
+┌─────────────────────┐
+│ Search: [a        ] │
+│ Filter: [Fruit  ▼] │
+│                     │
+│ • Apple - Fruit     │
+│ • Banana - Fruit    │
+│ • Grapes - Fruit    │
+│                     │
+│ [1]                 │
+└─────────────────────┘
+
+═════════════════════════════════════════════════════════════════════════════════
 
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│                              KEY FEATURES                                      │
+│                              KEY TAKEAWAYS                                     │
 └─────────────────────────────────────────────────────────────────────────────────┘
 
-• SEARCH:     Real-time filtering by item name (case-insensitive)
-• FILTER:     Category-based filtering (All/Fruit/Vegetable)
-• PAGINATION: Page-based navigation with configurable items per page
-• STATE MGMT: Centralized Redux state management
-• AUTO-RESET: Page resets to 1 when search/filter changes
-
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                              FILE STRUCTURE                                    │
-└─────────────────────────────────────────────────────────────────────────────────┘
-
-src/
-├── App.js                 (Provider wrapper)
-├── redux/
-│   ├── store.js          (Redux store configuration)
-│   └── itemSlice.js      (State & actions)
-└── components/
-    ├── ItemList.js       (Main component)
-    └── Pagination.js     (Pagination UI)
+1. Each user action (search/filter) triggers a Redux dispatch
+2. State updates cause component re-render via useSelector
+3. filteredItems is computed on EVERY render with current state
+4. Search and filter work together with AND logic (both must be true)
+5. Page automatically resets to 1 when search/filter changes
+6. Pagination calculations happen after filtering
+7. UI updates reactively to show filtered results
