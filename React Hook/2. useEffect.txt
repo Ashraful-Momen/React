@@ -1,0 +1,49 @@
+#React Hook : 
+----------------
+*** don't use the hook , inside the loop , condition and nested function:  
+
+#useEffect(): 
+----------------
+#use : for data fetching , update dom , 
+#useEffect => use alternative : componentDidMount, componentDidUpdate and componentWillUnmount. 
+
+
+example : 
+-----------
+useEffect(() => {
+console.log("useEffect");
+
+}); 
+
+//explain: 
+here with array means run useEffect(), run every times . 
+
+-------------------------------------
+
+useEffect(() => {
+console.log("useEffect");
+
+},[]); 
+
+//explain: 
+here null array means run useEffect(), run only one times . 
+
+-------------------------------------
+useEffect(() => {
+console.log("useEffect");
+
+},[2]); 
+
+//explain: 
+here [2], array means run useEffect(), orun nly 2 times . 
+--------------------------------------
+useEffect(() => {
+console.log("useEffect");
+
+},[count]); 
+
+//explain: 
+here [count], array means run useEffect(), run if change count varibale . 
+here count is the depending varibale . we can use multiple dependency 
+varibale [count,isLoading,etc]
+this count variable use in functional component or the class component  . 
