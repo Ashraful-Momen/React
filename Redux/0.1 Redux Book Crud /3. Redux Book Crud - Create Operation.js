@@ -216,6 +216,15 @@ const BookForm = () => {
         // console.log(newBook);
       dispatch(addBook(newBook));  
 
+      //clear the book after submit: ________________
+       setBook({
+          title: "",
+          author: "",
+          price: "",
+          quantity: "",
+        });
+      
+
   }
 
 
