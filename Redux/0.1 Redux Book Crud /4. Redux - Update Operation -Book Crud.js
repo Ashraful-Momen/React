@@ -389,8 +389,8 @@ const App = () => {
 
   return (
     <div className="row">
-      <BookForm bookToEdit={bookToEdit} />
-      <BookList onHandleEdit={handleEdit} onHandleCancelEdit={handleCancelEdit} /> //*** mistake pass the handleCancelEdit to <BooKForm> component fix it 
+      <BookForm bookToEdit={bookToEdit} onCancelEdit={handleCancelEdit}/>
+      <BookList onHandleEdit={handleEdit} /> 
     </div>
   );
 };
@@ -471,9 +471,8 @@ import { addBook } from "../features/bookSlice";
 import { useDispatch } from "react-redux";
 
 
-const BookForm = ({bookToEdit, handleCancelEdit}) => {
-
-  //initialazed the state of book state:
+const BookForm = ({ bookToEdit, onCancelEdit }) => {
+  // console.log(bookToEdit,onCancelEdit);
   const [book, setBook] = useState({
     title: "",
     author: "",
@@ -481,115 +480,128 @@ const BookForm = ({bookToEdit, handleCancelEdit}) => {
     quantity: "",
   });
 
+  const dispatch = useDispatch();
 
-  
-  //send value to reducer : dispatch 
-  const dispatch = useDispatch(); 
-
-  //set the book to the state 
+  //set the book value into useState : pass the value from input field. 
   const handleChange = (event) => {
+    const { name, value } = event.target;
 
-    const {name, value} = event.target; 
-
-    setBook((prevBook)=>({...prevBook,[name]:value}));
+    setBook((prevBook) => ({ ...prevBook, [name]: value }));
     // console.log(name,value)
+  };
 
-  }
-
-
+  //handle submit
   //dispatch the book to the reducer.action
   const handleSubmit = (event) => {
     event.preventDefault();
 
-      // Generate a random number for the ID
-      const randomId = Math.floor(Math.random() * 1000000); // Generates a random number between 0 and 999999
+    // Generate a random number for the ID
+    const randomId = Math.floor(Math.random() * 1000000); // Generates a random number between 0 and 999999
 
-      // Create a new book object with the random ID
-      const newBook = { ...book, id: randomId };
+    // Create a new book object with the random ID
+    const newBook = { ...book, id: randomId };
 
-
-      // console.log(newBook);
-      // dispatch(addBook(newBook)); 
-
-
-      //if bookToEdit then dispatch update book else dispatch add book :
+    //if bookToEdit then dispatch update book else dispatch add book :
       if(bookToEdit){
         dispatch(addBook(newBook));
-        handleCancelEdit();
+
+        //***  here we call the setBook({}) method to set the bookToEdit to null and onCancelEdit do the same : 
+        
+
+        // setBook({
+        //   title: "",
+        //   author: "",
+        //   price: "",
+        //   quantity: "",
+        // });
+
+        onCancelEdit();
       }
       else{
 
         // console.log(newBook);
-      dispatch(addBook(newBook));  
+        onCancelEdit();
       }
 
-      //after submit set the book to empty : 
+    // setBook({
+    //   title: "",
+    //   author: "",
+    //   price: "",
+    //   quantity: "",
+    // });
+  };
+
+  //For edit part use this function => if bookToEdit is not null useEffect=>
+  useEffect(() => {
+    if (bookToEdit) {
+      setBook(bookToEdit);
+    }
+    else{
       setBook({
         title: "",
         author: "",
         price: "",
         quantity: "",
       });
-
-
-
-  }
-
-
-  //For edit part use this function => if bookToEdit is not null useEffect=> 
-    useEffect(() => {
-      if(bookToEdit){
-        setBook(bookToEdit);
-      }
-      
-    },[bookToEdit]);
-
-
+    }
+  }, [bookToEdit]);
 
   return (
-    <div className="text-center m-3">
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="title"
-          value={book.title}
-          onChange={handleChange}
-          placeholder="Title"
-          required
-        />
-        <br />
-        <input
-          type="text"
-          name="author"
-          value={book.author}
-          onChange={handleChange}
-          placeholder="Author"
-          required
-        />
-        <br />
-        <input
-          type="number"
-          name="price"
-          value={book.price}
-          onChange={handleChange}
-          placeholder="Price"
-          required
-        />
-        <br />
-        <input
-          type="number"
-          name="quantity"
-          value={book.quantity}
-          onChange={handleChange}
-          placeholder="Quantity"
-          required
-        />
-        <br />
-        <button type="submit" className="btn btn-sm btn-primary my-2" > {bookToEdit ? "Update Book" : "Add Book"}</button>
-        
-        <button type="submit" className="btn btn-sm btn-primary my-2" onClick={onCancel} > Cancel </button>
-      </form>
-    </div>
+    <>
+      <h4 className="text-center">Add the book List</h4>
+      <hr />
+      <div className="text-center m-3">
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            name="title"
+            value={book.title}
+            onChange={handleChange}
+            placeholder="Title"
+            required
+          />
+          <br />
+          <input
+            type="text"
+            name="author"
+            value={book.author}
+            onChange={handleChange}
+            placeholder="Author"
+            required
+          />
+          <br />
+          <input
+            type="number"
+            name="price"
+            value={book.price}
+            onChange={handleChange}
+            placeholder="Price"
+            required
+          />
+          <br />
+          <input
+            type="number"
+            name="quantity"
+            value={book.quantity}
+            onChange={handleChange}
+            placeholder="Quantity"
+            required
+          />
+          <br />
+          <button type="submit" className="btn btn-sm btn-primary my-2">
+            Submit
+          </button>
+          <button
+            type="submit"
+            className="btn btn-sm btn-primary my-2"
+            onClick={onCancelEdit}
+          >
+            
+            Cancel
+          </button>
+        </form>
+      </div>
+    </>
   );
 };
 
