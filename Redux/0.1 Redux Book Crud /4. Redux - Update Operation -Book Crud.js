@@ -390,7 +390,7 @@ const App = () => {
   return (
     <div className="row">
       <BookForm bookToEdit={bookToEdit} />
-      <BookList onHandleEdit={handleEdit} onHandleCancelEdit={handleCancelEdit} />
+      <BookList onHandleEdit={handleEdit} onHandleCancelEdit={handleCancelEdit} /> //*** mistake pass the handleCancelEdit to <BooKForm> component fix it 
     </div>
   );
 };
