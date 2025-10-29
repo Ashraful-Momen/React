@@ -4,7 +4,7 @@
                     ----------> authSlice :
                         --------->api send to backend ---------------> received token ------------> save to localStorage with time as cookies (client_side storage) 
                         ------------> write=> fn: check the token is valid or not 
-                        ------------> **** in the Navbar component import the check_token fn for checking , token valid or not, if not valid redirect to login page. 
+                        ------------> **** in the Navbar component import the check_token fn from authSlice for checking  , token valid or not, if not valid redirect to login page. 
 
 -------------------------------------------------------- best flow --------------------------------------------
 
